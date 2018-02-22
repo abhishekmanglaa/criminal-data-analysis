@@ -9,7 +9,7 @@ ui <- fluidPage(
   
   sidebarLayout(
     position = "left",
-    sidebarPanel("sidebar panel"),
+    sidebarPanel("ABCDE"),
     mainPanel(
       h2("Header 2")
       ),
