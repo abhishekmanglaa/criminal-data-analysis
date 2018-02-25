@@ -1,33 +1,29 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
 
-# Define UI for application that draws a histogram
-shinyUI(fluidPage(
-  
-  # Application title
-  titlePanel("Old Faithful Geyser Data"),
-  
-  # Sidebar with a slider input for number of bins 
-  sidebarLayout(
+shinyUI(
+  pageWithSidebar(
+    headerPanel("Chicago crime data visualisation"),
     sidebarPanel(
-       sliderInput("bins",
-                   "Number of bins:",
-                   min = 1,
-                   max = 50,
-                   value = 30)
-    ),
-    
-    # Show a plot of the generated distribution
-    mainPanel(
-       plotOutput("distPlot")
-    )
+      wellPanel(
+        helpText(HTML("<b>Ready?</b>")),
+        HTML("Scroll down to modify the settings. Click this when you are ready to render new plots."),
+        submitButton("Update graphs and tables")
+        ),
+      wellPanel(
+        helpText(HTML("<b>BASIC SETTING</b>")),
+        selectInput("crimetype","Select crime type.",choices=c(unique(crime.data$crime))),
+        helpText("Examples: BATTERY, THEFT etc."),
+        dateInput("startdate", "Start Date of Data Collection:", value = "2000-01-01", format = "mm-dd-yyyy",
+                  min = "2000-01-01", max = "2014-09-29"),
+        dateInput("enddate", "End Date of Data Collection:", value = "2015-01-02", format = "mm-dd-yyyy",
+                  min = "startdate", max = "2014-09-30"),
+        helpText("MM-DD-YYYY as Date format")
+      ),
+      wellPanel(
+        selectInput('community','Community Area',choices = c("A","B"), selected = "Chicago-All",selectize=TRUE),
+        helpText("Applies to Crime Map, Analysis, and Weather sections")
+      )
+    ), 
+    mainPanel()
   )
-))
+)
