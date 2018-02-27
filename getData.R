@@ -1,3 +1,8 @@
+library(readr)
+library(stringr)
+library(chron)
+library(reshape)
+
 crime.data=read_csv("/Users/abhishekmangla/Desktop/R/DataSet.csv",col_names = TRUE)
 str(crime.data)
 summary(crime.data)
@@ -8,7 +13,6 @@ crime.data=subset(crime.data,!is.na(crime.data$Ward))
 head(crime.data$Date)
 crime.data$Date=as.POSIXlt(crime.data$Date,format = "%m/%d/%Y %H:%M")
 head(crime.data$Date)
-library(chron)
 crime.data$time=times(format(crime.data$Date,"%H:%M:%S"))
 head(crime.data$time)
 time.tag=chron(times=c("00:00:00", "06:00:00", "12:00:00", "18:00:00", "23:59:00")) 
@@ -33,3 +37,11 @@ crime.data$crime <- ifelse(crime.data$crime %in% c("KIDNAPPING", "WEAPONS VIOLAT
 table(crime.data$crime)
 crime.data$Arrest=ifelse(as.character(crime.data$Arrest)=="Y",1,0)
 
+
+
+crime.data$newColumn<- crime.data$Block
+
+crime.data = transform(crime.data, FOO = colsplit(newColumn, split = " ", names = c('a', 'b')))
+
+
+unique(crime.data$FOO.NA.)
