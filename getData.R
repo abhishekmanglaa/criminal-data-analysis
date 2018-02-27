@@ -1,4 +1,4 @@
-crime.data=read_csv("/Users/Akshansh/Downloads/Crimes_-_2001_to_present.csv",col_names = TRUE)
+crime.data=read_csv("/Users/abhishekmangla/Desktop/R/DataSet.csv",col_names = TRUE)
 str(crime.data)
 summary(crime.data)
 crime.data=subset(crime.data,!duplicated(crime.data$`Case Number`))
