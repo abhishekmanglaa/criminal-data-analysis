@@ -43,7 +43,7 @@ crime.data$newColumn<- crime.data$Block
 crime.data = transform(crime.data, FOO = colsplit(newColumn, split = " ", names = c('a', 'b')))
 unique(crime.data$FOO.NA.)
 
-commArea = read_csv("/Users/abhishekmangla/Desktop/R/CA.csv",col_names = FALSE)
+commArea = read_csv("CA.csv",col_names = FALSE)
 
 commNames = commArea$X2
 commNames
