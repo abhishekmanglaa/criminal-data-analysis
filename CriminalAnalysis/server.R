@@ -18,6 +18,11 @@ shinyServer(function(input, output) {
     x    <- faithful[, 2] 
     bins <- seq(min(x), max(x), length.out = input$bins + 1)
     
+    commAreasubset <- subset(commArea , X2 = input$community)
+    commNo <- commAreasubset$X1
+    subCrimeData <- subset(crime.data, date > input$startdate & date < input$enddate & Primary.Type = crimetype & Community.Area = commNo,
+                           select=ID:crime)
+    subCrimeData
     # draw the histogram with the specified number of bins
     hist(x, breaks = bins, col = 'darkgray', border = 'white')
     
