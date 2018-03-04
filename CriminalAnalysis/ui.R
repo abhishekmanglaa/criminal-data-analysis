@@ -20,7 +20,7 @@ shinyUI(
         helpText("MM-DD-YYYY as Date format")
       ),
       wellPanel(
-        selectInput('community','Community Area',choices = c("A","B"), selected = "Chicago-All",selectize=TRUE),
+        selectInput('community','Community Area', choices = commNames, selected = "Chicago-All",selectize=TRUE),
         helpText("Applies to Crime Map, Analysis, and Weather sections")
       )
     ), 
