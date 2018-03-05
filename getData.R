@@ -1,8 +1,3 @@
-library(readr)
-library(stringr)
-library(chron)
-library(reshape)
-
 crime.data=read_csv("/Users/abhishekmangla/Desktop/R/DataSet.csv",col_names = TRUE)
 str(crime.data)
 summary(crime.data)
@@ -38,12 +33,15 @@ table(crime.data$crime)
 crime.data$Arrest=ifelse(as.character(crime.data$Arrest)=="Y",1,0)
 
 
-
 crime.data$newColumn<- crime.data$Block
 crime.data = transform(crime.data, FOO = colsplit(newColumn, split = " ", names = c('a', 'b')))
 unique(crime.data$FOO.NA.)
 
+<<<<<<< HEAD
 commArea = read_csv("CA.csv",col_names = FALSE)
+=======
+>>>>>>> 53e95d35f10b9e4eee0490ab563d7421b9b6e205
 
+commArea = read_csv("CA.csv",col_names = FALSE)
 commNames = commArea$X2
 commNames
