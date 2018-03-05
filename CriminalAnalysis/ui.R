@@ -42,7 +42,10 @@ shinyUI
     
     mainPanel
     (
-      tableOutput("try")
+      tabsetPanel
+      (
+        tabPanel("Basic Stats",show)
+      )
     )
     
   )
