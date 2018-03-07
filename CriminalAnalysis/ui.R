@@ -45,6 +45,8 @@ shinyUI
       tabsetPanel
       (
         tabPanel("Basic Stats",show)
+        qplot(crime.data$crime,xlab = "Crime",main = "Crimes in Chicago")+scale_y_continuous("Number of Crimes")
+        
       )
     )
     
