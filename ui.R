@@ -46,7 +46,7 @@ shinyUI
       (
         tabsetPanel(
           type = "tab",
-          tabPanel("Introduction",includeMarkdown("/Users/abhishekmangla/Desktop/R/CriminalDataAnalysis/docs/introduction.md"))
+          tabPanel("Introduction",includeMarkdown("docs/introduction.md"))
           
           
         )
