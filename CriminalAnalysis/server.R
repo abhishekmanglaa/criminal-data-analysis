@@ -1,11 +1,13 @@
-
 library(shiny)
+
+
 
 
 shinyServer
 (
   function(input, output) 
   {
+<<<<<<< HEAD
     #output$try <- renderTable
     #(
      # {
@@ -21,5 +23,9 @@ shinyServer
     output$summr=renderPrint({
       summary(commNames)
     })
+=======
+    output$table <- renderTable(commArea)
+    output$try <- renderTable(iris)
+>>>>>>> b9d3194aa1334399c4a58527b8693a2568cd9d41
   }
 )
