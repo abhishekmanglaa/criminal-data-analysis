@@ -46,9 +46,7 @@ shinyUI
       (
         tabsetPanel(
           type = "tab",
-          tabPanel("Mangla",tableOutput('table')),
-          
-          tabPanel("Narula",tableOutput('try'))
+          tabPanel("Mangla",tableOutput('table'))
           
         )
       )
