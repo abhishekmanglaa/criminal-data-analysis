@@ -4,6 +4,8 @@ shinyServer
 (
   function(input, output) 
   {
-    output$table = renderTable(iris)
+    output$data = DT::renderDataTable(
+      crime.simple.data
+    )
   }
 )

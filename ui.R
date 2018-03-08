@@ -46,8 +46,9 @@ shinyUI
       (
         tabsetPanel(
           type = "tab",
-          tabPanel("Introduction",includeMarkdown("docs/introduction.md"))
-      
+          tabPanel("Introduction",includeMarkdown("docs/introduction.md")),
+          tabPanel("Data",DT::dataTableOutput('data'))
+          
           
         )
       )

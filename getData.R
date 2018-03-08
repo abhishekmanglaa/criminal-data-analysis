@@ -37,12 +37,22 @@ crime.data$newColumn<- crime.data$Block
 crime.data = transform(crime.data, FOO = colsplit(newColumn, split = " ", names = c('a', 'b')))
 unique(crime.data$FOO.NA.)
 
+
 commArea = read_csv("CA.csv",col_names = FALSE)
 commArea <- commArea[order(commArea$X1),]
 commNames = commArea$X2
-commNames
-
-crime.aggr=ddply(crime.data,.(crime,Arrest,Beat,Date,`X Coordinate`,`Y Coordinate`,time.tag,day,month),summarise,count=length(Date),.progress = `text`)
 
 
+crime.data$FOO.NA..5 <- NULL
+crime.data$FOO.NA..4 <- NULL
+crime.data$FOO.NA..3 <- NULL
+crime.data$FOO.NA..2 <- NULL
+crime.data$FOO.NA..1 <- NULL
+crime.data$FOO.NA. <- NULL
+crime.data$FOO.b <- NULL
+crime.data$FOO.a <- NULL
+crime.data$newColumn <- NULL
+
+
+crime.simple.data <- crime.data[c(3:4,6:9,24,26,27)]
 
