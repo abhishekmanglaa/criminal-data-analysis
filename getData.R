@@ -56,3 +56,23 @@ crime.data$newColumn <- NULL
 
 crime.simple.data <- crime.data[c(4,6:8,19,24,26,27)]
 
+
+map.center = head(crime.data,n=2)
+map.center = map.center[c("Longitude","Latitude")]
+names(map.center[1])= 'lon'
+names(map.center[2])= 'lat'
+map.center = map.center[-1,]
+map.base = get_googlemap(
+  as.matrix(map.center),
+  maptype = "terrain",
+  zoom = 10,
+  messaging = FALSE
+)
+
+map.base <- ggmap(map.base, extend = "panel", messaging = FALSE) + coord_cartesian() + coord_fixed(ratio = 1.5)
+
+p <- map.base + geom_point(aes(x=map.center$Longitude, y=map.center$Latitude), colour="red", size = 4, na.rm=TRUE, data=tempdate)
+
+plot(p)
+
+
