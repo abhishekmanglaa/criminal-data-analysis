@@ -21,9 +21,9 @@ shinyUI
           helpText(HTML("<b>BASIC SETTING</b>")),
           selectInput("crimetype","Select crime type.",choices=c(unique(crime.data$crime))),
           helpText("Examples: BATTERY, THEFT etc."),
-          dateInput("startdate", "Start Date of Data Collection:", value = "2000-01-01", format = "mm-dd-yyyy",
+          dateInput("startdate", "Start Date of Data Collection:", value = "2000-01-01", format = "yyyy-dd-mm",
                     min = "2000-01-01", max = "2014-09-29"),
-          dateInput("enddate", "End Date of Data Collection:", value = "2018-01-01", format = "mm-dd-yyyy",
+          dateInput("enddate", "End Date of Data Collection:", value = "2018-01-01", format = "yyyy-dd-mm",
                     min = "2000-01-01", max = "2018-01-02"),
           
           helpText("MM-DD-YYYY as Date format")
@@ -47,7 +47,10 @@ shinyUI
         tabsetPanel(
           type = "tab",
           tabPanel("Introduction",includeMarkdown("docs/introduction.md")),
-          tabPanel("Data",DT::dataTableOutput('data'))
+          tabPanel("Data",DT::dataTableOutput('data')),
+          tabPanel("Map",plotOutput("map",height = 600,width = 600))
+          
+          
           
           
         )

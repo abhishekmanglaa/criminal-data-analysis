@@ -54,5 +54,5 @@ crime.data$FOO.a <- NULL
 crime.data$newColumn <- NULL
 
 
-crime.simple.data <- crime.data[c(3:4,6:9,24,26,27)]
+crime.simple.data <- crime.data[c(4,6:8,19,24,26,27)]
 
