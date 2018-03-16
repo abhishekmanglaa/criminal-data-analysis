@@ -9,6 +9,9 @@ shinyServer
   {
     output$data = DT::renderDataTable(crime.simple.data)
     
+    
+    
+    
     datetypesubset <- reactive({
       
       tempData <- subset(crime.data, 
@@ -16,25 +19,39 @@ shinyServer
       
       commSubset <- subset(commArea,commArea$X2 == input$community)
       tempData <- subset(tempData, tempData$Community.Area == commSubset$X1,
-                         select = c(Latitude,Longitude))
+                         select = c(Date,Primary.Type,Latitude,Longitude))
       return(tempData)
     })
+    
+    
+    
+    crimebytimeXTS <- reactive({
+      dfin <- datetypesubset()
+      df.xts <- xts(x = dfin[, c("Primary.Type","Date")], order.by = dfin[, "Date"])
+      
+      crimebytime <- apply.yearly(df.xts, function(d) {sum(str_count(d, input$crimetype ))})
+      df.xts <- NULL
+      return(crimebytime)
+    })
+    
+    
+  
     
     output$map <- renderPlot({
       crimebydatetype <- datetypesubset()
       
       
-     # map.center = head(crime.data,n=2)
-     # map.center = map.center[c("Longitude","Latitude")]
-     # names(map.center[1])= 'lon'
-     # names(map.center[2])= 'lat'
-     # map.center = map.center[-1,]
+      map.center = head(crimebydatetype,n=2)
+      map.center = map.center[c("Longitude","Latitude")]
+      names(map.center[1])= 'lon'
+      names(map.center[2])= 'lat'
+      map.center = map.center[-1,]
       
-      map.center = geocode("Chicago")
+     
       map.base = get_googlemap(
         as.matrix(map.center),
         maptype = "terrain",
-        zoom = 10,
+        zoom = 15,
         messaging = FALSE
       )
       
@@ -47,12 +64,5 @@ shinyServer
       
       
     })
-   
-    
-    
-  # output$temp <- DT::renderDataTable({crimebydatetype()})
-    
-    
-    
   }
 )

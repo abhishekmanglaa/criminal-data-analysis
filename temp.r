@@ -1,3 +1,0 @@
-
-
-tempdatetype <- crimebydatetype()

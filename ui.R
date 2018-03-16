@@ -48,7 +48,9 @@ shinyUI
           type = "tab",
           tabPanel("Introduction",includeMarkdown("docs/introduction.md")),
           tabPanel("Data",DT::dataTableOutput('data')),
-          tabPanel("Map",plotOutput("map",height = 600,width = 600))
+          tabPanel("Map",plotOutput("map",height = 600,width = 600)),
+          #tabPanel("Temp",tableOutput('temp')),
+          tabPanel("Basic Stats",showOutput("analysis","highcharts"))
           
           
           
