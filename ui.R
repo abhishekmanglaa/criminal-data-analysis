@@ -39,6 +39,12 @@ shinyUI
         (
           selectInput("period", "Choose period for analysis:", choice = c("Monthly","Weekly","Daily","Yearly")),
           helpText("Applies to Analysis and Weather sections")
+        ),
+        
+        wellPanel
+        (
+          selectInput("typeofplot", "Choose type of plot", choice = c("Number of crimes vs CrimeType","Crime by time of Day","Crime By month","Crime by day")),
+          helpText("Applies to the Plots Tab")
         )
       ),
       
@@ -50,7 +56,8 @@ shinyUI
           tabPanel("Data",DT::dataTableOutput('data')),
           tabPanel("Map",plotOutput("map",height = 600,width = 600)),
           #tabPanel("Temp",tableOutput('temp')),
-          tabPanel("Basic Stats",showOutput("analysis","highcharts"))
+          tabPanel("Basic Stats",showOutput("analysis","highcharts")),
+          tabPanel("Plots", plotOutput("plots"))
           
           
           

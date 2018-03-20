@@ -56,5 +56,14 @@ crime.data$newColumn <- NULL
 
 crime.simple.data <- crime.data[c(4,6:8,19,24,26,27)]
 
+qplot(crime.data$crime,xlab = "Crime",main = "Crimes in Chicago")+scale_y_continuous("Number of Crimes")
+
+qplot(crime.data$time.tag, xlab="Time of day", main="Crimes by time of day") + scale_y_continuous("Number of crimes")
+
+crime.data$day <- factor(crime.data$day, levels=c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
+qplot(crime.data$day,xlab = "Day of Week",main="Crimes by day of Week")+scale_y_continuous("Number of crimes")
+
+crime.data$month <- factor(crime.data$month, levels=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+qplot(crime.data$month, xlab= "Month", main="Crimes by month")+ scale_y_continuous("Number of crimes")
 
 
