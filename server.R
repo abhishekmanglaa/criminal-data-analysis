@@ -1,15 +1,11 @@
 library(shiny)
 
-
-
 shinyServer
 (
   
   function(input, output) 
   {
-    output$data = DT::renderDataTable(crime.simple.data)
-    
-    
+    output$data = DT::renderDataTable({datetypesubsetforsimpledata()})
     
     
     datetypesubset <- reactive({
@@ -20,6 +16,17 @@ shinyServer
       commSubset <- subset(commArea,commArea$X2 == input$community)
       tempData <- subset(tempData, tempData$Community.Area == commSubset$X1,
                          select = c(Date,Primary.Type,Latitude,Longitude))
+      return(tempData)
+    })
+    
+    datetypesubsetforsimpledata <- reactive({
+      
+      tempData <- subset(crime.data, 
+                         crime.data$Date > as.POSIXct(strptime(input$startdate, format="%Y-%m-%d")) & crime.data$Date < as.POSIXct(strptime(input$enddate, format="%Y-%m-%d")) & crime.data$crime == input$crimetype)
+      
+      commSubset <- subset(commArea,commArea$X2 == input$community)
+      tempData <- subset(tempData, tempData$Community.Area == commSubset$X1)
+      tempData <- tempData[c(4,6:8,19,24,26,27)]
       return(tempData)
     })
     
@@ -34,8 +41,6 @@ shinyServer
       return(crimebytime)
     })
     
-    
-  
     
     output$map <- renderPlot({
       crimebydatetype <- datetypesubset()
