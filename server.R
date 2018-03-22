@@ -26,8 +26,8 @@ shinyServer
   {
     datetypesubsetforsimpledata <- reactive({
       
-      tempData <- subset(crime.data, 
-                         crime.data$Date > as.POSIXct(strptime(input$startdate, format="%Y-%m-%d")) & crime.data$Date < as.POSIXct(strptime(input$enddate, format="%Y-%m-%d")) & crime.data$crime == input$crimetype)
+      tempData <- subset(chota, 
+                         chota$Date > as.POSIXct(strptime(input$startdate, format="%Y-%m-%d")) & chota$Date < as.POSIXct(strptime(input$enddate, format="%Y-%m-%d")) & chota$crime == input$crimetype)
       
       commSubset <- subset(commArea,commArea$X2 == input$community)
       tempData <- subset(tempData, tempData$Community.Area == commSubset$X1)
@@ -37,14 +37,17 @@ shinyServer
     
     datetypesubset <- reactive({
       
-      tempData <- subset(crime.data, 
-                         crime.data$Date > as.POSIXct(strptime(input$startdate, format="%Y-%m-%d")) & crime.data$Date < as.POSIXct(strptime(input$enddate, format="%Y-%m-%d")) & crime.data$crime == input$crimetype)
+      tempData <- subset(chota, 
+                         chota$Date > as.POSIXct(strptime(input$startdate, format="%Y-%m-%d")) & chota$Date < as.POSIXct(strptime(input$enddate, format="%Y-%m-%d")) & chota$crime == input$crimetype)
       
       commSubset <- subset(commArea,commArea$X2 == input$community)
       tempData <- subset(tempData, tempData$Community.Area == commSubset$X1,
                          select = c(Date,Primary.Type,Latitude,Longitude))
       return(tempData)
     })
+    
+    
+    
     crimebytimeXTS <- reactive({
       dfin <- datetypesubset()
       df.xts <- xts(x = dfin[, c("Primary.Type","Date")], order.by = dfin[, "Date"])
@@ -60,7 +63,13 @@ shinyServer
     
     
     
-    output$data = DT::renderDataTable({datetypesubsetforsimpledata()})
+    output$datatable <- renderDataTable({
+      
+      datetypesubsetforsimpledata()
+      
+    }, options = list(aLengthMenu = c(10, 25, 50, 100, 1000), iDisplayLength = 10))
+    
+    
     output$map <- renderPlot({
       crimebydatetype <- datetypesubset()
       
@@ -88,12 +97,13 @@ shinyServer
       
       
     })
+    
     output$plots <- renderPlot({
-      p <- qplot(crime.data$crime,xlab = "Crime",main = "Crimes in Chicago")+scale_y_continuous("Number of Crimes")
-      p <- qplot(crime.data$crime,xlab = "Crime",main = "Crimes in Chicago")+scale_y_continuous("Number of Crimes")
-      q <- qplot(crime.data$time.tag, xlab="Time of day", main="Crimes by time of day") + scale_y_continuous("Number of crimes")
-      r <- qplot(crime.data$day,xlab = "Day of Week",main="Crimes by day of Week")+scale_y_continuous("Number of crimes")
-      s <- qplot(crime.data$month, xlab= "Month", main="Crimes by month")+ scale_y_continuous("Number of crimes")
+      p <- qplot(chota$crime,xlab = "Crime",fill = I("pink"),col = I("red"), main = "Crimes in Chicago")+scale_y_continuous("Number of Crimes")
+      p <- qplot(chota$crime,xlab = "Crime",main = "Crimes in Chicago")+scale_y_continuous("Number of Crimes")
+      q <- qplot(chota$time.tag, xlab="Time of day", main="Crimes by time of day") + scale_y_continuous("Number of crimes")
+      r <- qplot(chota$day,xlab = "Day of Week",main="Crimes by day of Week")+scale_y_continuous("Number of crimes")
+      s <- qplot(chota$month, xlab= "Month", main="Crimes by month")+ scale_y_continuous("Number of crimes")
       type <- input$typeofplot
       if(type == "Number of crimes vs CrimeType") { print(p)}
       if(type == "Crime by time of Day") { print(q)}
@@ -102,12 +112,7 @@ shinyServer
       
     })
     
-    
-    
-    
-    
-    
-    
+
     output$analysis <- renderChart2({
       
       crimebytime <-crimebytimeXTS()
@@ -129,6 +134,12 @@ shinyServer
       h1$xAxis(type = "datetime")
       
       h1
+    })
+    
+    
+    output$heatMaps <- renderPlot({
+      p <- ggplot(temp,aes(x=factor(time.tag.small),y=crime))+geom_tile(aes(fill=count))+scale_x_discrete("Crime",expand=c(0,0))+scale_y_discrete("Time of the day",expand = c(0,-2))+scale_fill_gradient("Number of crimes",low="white",high="steelblue")+theme_bw()+ggtitle("Crimes by time of day")+theme(panel.grid.major = element_line(color=NA),panel.grid.minor = element_line(color=NA))
+      print(p)
     })
     
   }

@@ -3,7 +3,7 @@ library(shiny)
 shinyUI
 (
   fluidPage
-  (
+  ( theme = shinytheme("journal"),
     headerPanel("Chicago crime data visualisation"),
     sidebarLayout
     (
@@ -19,7 +19,7 @@ shinyUI
         wellPanel
         (
           helpText(HTML("<b>BASIC SETTING</b>")),
-          selectInput("crimetype","Select crime type.",choices=c(unique(crime.data$crime))),
+          selectInput("crimetype","Select crime type.",choices=c(unique(chota$crime))),
           helpText("Examples: BATTERY, THEFT etc."),
           dateInput("startdate", "Start Date of Data Collection:", value = "2000-01-01", format = "yyyy-dd-mm",
                     min = "2000-01-01", max = "2014-09-29"),
@@ -41,6 +41,8 @@ shinyUI
           helpText("Applies to Analysis and Weather sections")
         ),
         
+        radioButtons("color","Select the color", choices = c("Blue","Orange","Green","Red","Purple")),
+        
         wellPanel
         (
           selectInput("typeofplot", "Choose type of plot", choice = c("Number of crimes vs CrimeType","Crime by time of Day","Crime By month","Crime by day")),
@@ -53,15 +55,13 @@ shinyUI
         tabsetPanel(
           type = "tab",
           tabPanel("Introduction",includeMarkdown("docs/introduction.md")),
-          tabPanel("Data",DT::dataTableOutput('data')),
+          tabPanel("Data",dataTableOutput("datatable")),
           tabPanel("Map",plotOutput("map",height = 600,width = 600)),
           #tabPanel("Temp",tableOutput('temp')),
           tabPanel("Basic Stats",showOutput("analysis","highcharts")),
-          tabPanel("Plots", plotOutput("plots"))
-          
-          
-          
-          
+          tabPanel("Plots", plotOutput("plots")),
+          tabPanel("HeatMaps", plotOutput("heatMaps"))
+    
         )
       )
     ) 
