@@ -26,23 +26,23 @@ shinyServer
   {
     datetypesubsetforsimpledata <- reactive({
       
-      tempData <- subset(chota, 
-                         chota$Date > as.POSIXct(strptime(input$startdate, format="%Y-%m-%d")) & chota$Date < as.POSIXct(strptime(input$enddate, format="%Y-%m-%d")) & chota$crime == input$crimetype)
+      tempData <- subset(crimeData, 
+                         crimeData$PosixctDate > as.POSIXct(strptime(input$startdate, format="%Y-%m-%d")) & crimeData$PosixctDate < as.POSIXct(strptime(input$enddate, format="%Y-%m-%d")) & crimeData$crime == input$crimetype)
       
       commSubset <- subset(commArea,commArea$X2 == input$community)
-      tempData <- subset(tempData, tempData$Community.Area == commSubset$X1)
+      tempData <- subset(tempData, tempData$`Community Area` == commSubset$X1)
       tempData <- tempData[c(4,6:8,19,24,26,27)]
       return(tempData)
     })
     
     datetypesubset <- reactive({
       
-      tempData <- subset(chota, 
-                         chota$Date > as.POSIXct(strptime(input$startdate, format="%Y-%m-%d")) & chota$Date < as.POSIXct(strptime(input$enddate, format="%Y-%m-%d")) & chota$crime == input$crimetype)
+      tempData <- subset(crimeData, 
+                         crimeData$PosixctDate > as.POSIXct(strptime(input$startdate, format="%Y-%m-%d")) & crimeData$PosixctDate < as.POSIXct(strptime(input$enddate, format="%Y-%m-%d")) & crimeData$crime == input$crimetype)
       
       commSubset <- subset(commArea,commArea$X2 == input$community)
-      tempData <- subset(tempData, tempData$Community.Area == commSubset$X1,
-                         select = c(Date,Primary.Type,Latitude,Longitude))
+      tempData <- subset(tempData, tempData$`Community Area` == commSubset$X1,
+                         select = c(PosixctDate,crime,Latitude,Longitude,abc))
       return(tempData)
     })
     
@@ -50,7 +50,7 @@ shinyServer
     
     crimebytimeXTS <- reactive({
       dfin <- datetypesubset()
-      df.xts <- xts(x = dfin[, c("Primary.Type","Date")], order.by = dfin[, "Date"])
+      df.xts <- xts(x = dfin[, c("crime","abc")], order.by = as.POSIXct(dfin$abc))
       
       if (input$period == "Daily") {crimebytime <- apply.daily(df.xts, function(d) {sum(str_count(d, input$crimetype ))})}
       if (input$period == "Weekly") {crimebytime <- apply.weekly(df.xts, function(d) {sum(str_count(d, input$crimetype ))})}
@@ -98,12 +98,13 @@ shinyServer
       
     })
     
+    
     output$plots <- renderPlot({
-      p <- qplot(chota$crime,xlab = "Crime",fill = I("pink"),col = I("red"), main = "Crimes in Chicago")+scale_y_continuous("Number of Crimes")
-      p <- qplot(chota$crime,xlab = "Crime",main = "Crimes in Chicago")+scale_y_continuous("Number of Crimes")
-      q <- qplot(chota$time.tag, xlab="Time of day", main="Crimes by time of day") + scale_y_continuous("Number of crimes")
-      r <- qplot(chota$day,xlab = "Day of Week",main="Crimes by day of Week")+scale_y_continuous("Number of crimes")
-      s <- qplot(chota$month, xlab= "Month", main="Crimes by month")+ scale_y_continuous("Number of crimes")
+      p <- qplot(crimeData$crime,xlab = "Crime",fill = I("pink"),col = I("red"), main = "Crimes in Chicago")+scale_y_continuous("Number of Crimes")
+      p <- qplot(crimeData$crime,xlab = "Crime",main = "Crimes in Chicago")+scale_y_continuous("Number of Crimes")
+      q <- qplot(crimeData$timeTag, xlab="Time of day", main="Crimes by time of day") + scale_y_continuous("Number of crimes")
+      r <- qplot(crimeData$day,xlab = "Day of Week",main="Crimes by day of Week")+scale_y_continuous("Number of crimes")
+      s <- qplot(crimeData$month, xlab= "Month", main="Crimes by month")+ scale_y_continuous("Number of crimes")
       type <- input$typeofplot
       if(type == "Number of crimes vs CrimeType") { print(p)}
       if(type == "Crime by time of Day") { print(q)}
@@ -111,7 +112,6 @@ shinyServer
       if(type == "Crime by day") { print(r)}
       
     })
-    
 
     output$analysis <- renderChart2({
       
@@ -138,7 +138,13 @@ shinyServer
     
     
     output$heatMaps <- renderPlot({
-      p <- ggplot(temp,aes(x=factor(time.tag.small),y=crime))+geom_tile(aes(fill=count))+scale_x_discrete("Crime",expand=c(0,0))+scale_y_discrete("Time of the day",expand = c(0,-2))+scale_fill_gradient("Number of crimes",low="white",high="steelblue")+theme_bw()+ggtitle("Crimes by time of day")+theme(panel.grid.major = element_line(color=NA),panel.grid.minor = element_line(color=NA))
+      temp <- aggregate(crimeData$crime, by=list(crimeData$crime,
+                                                   crimeData$timeTag), FUN= length)
+      names(temp) <- c("crime", "timeTag", "count")
+      
+      
+      
+      p <- ggplot(temp,aes(x=factor(timeTag),y=crime))+geom_tile(aes(fill=count))+scale_x_discrete("Crime",expand=c(0,0))+scale_y_discrete("Time of the day",expand = c(0,-2))+scale_fill_gradient("Number of crimes",low="white",high="steelblue")+theme_bw()+ggtitle("Crimes by time of day")+theme(panel.grid.major = element_line(color=NA),panel.grid.minor = element_line(color=NA))
       print(p)
     })
     

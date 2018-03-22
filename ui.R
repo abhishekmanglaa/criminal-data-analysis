@@ -19,7 +19,7 @@ shinyUI
         wellPanel
         (
           helpText(HTML("<b>BASIC SETTING</b>")),
-          selectInput("crimetype","Select crime type.",choices=c(unique(chota$crime))),
+          selectInput("crimetype","Select crime type.",choices=c(unique(crimeData$crime))),
           helpText("Examples: BATTERY, THEFT etc."),
           dateInput("startdate", "Start Date of Data Collection:", value = "2000-01-01", format = "yyyy-dd-mm",
                     min = "2000-01-01", max = "2014-09-29"),
@@ -59,7 +59,7 @@ shinyUI
           tabPanel("Map",plotOutput("map",height = 600,width = 600)),
           #tabPanel("Temp",tableOutput('temp')),
           tabPanel("Basic Stats",showOutput("analysis","highcharts")),
-          tabPanel("Plots", plotOutput("plots")),
+          #tabPanel("Plots", plotOutput("plots")),
           tabPanel("HeatMaps", plotOutput("heatMaps"))
     
         )
