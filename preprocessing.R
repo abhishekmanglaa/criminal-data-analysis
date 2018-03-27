@@ -64,3 +64,4 @@ crimeData$crime <- ifelse(crimeData$crime %in% c("KIDNAPPING", "WEAPONS VIOLATIO
 crimeData$abc <- as.POSIXct(crimeData$Date,format = "%m/%d/%Y %I:%M:%S %p")
 
 
+chota <- crime.data[seq(2,nrow(crimeData),10),]

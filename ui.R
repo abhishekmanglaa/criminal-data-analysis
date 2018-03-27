@@ -59,8 +59,12 @@ shinyUI
           tabPanel("Map",plotOutput("map",height = 600,width = 600)),
           #tabPanel("Temp",tableOutput('temp')),
           tabPanel("Basic Stats",showOutput("analysis","highcharts")),
-          #tabPanel("Plots", plotOutput("plots")),
-          tabPanel("HeatMaps", plotOutput("heatMaps"))
+          tabPanel("Plots", plotOutput("plots")),
+          tabPanel("HeatMaps", plotOutput("heatMaps"),radioButtons("heatplotselect",
+                                                                   label="Select the heat plot",
+                                                                   choices=list("By time","By Day of Week","By Month"),
+                                                                   selected="By time"))
+          
     
         )
       )

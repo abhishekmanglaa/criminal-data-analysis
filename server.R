@@ -31,7 +31,7 @@ shinyServer
       
       commSubset <- subset(commArea,commArea$X2 == input$community)
       tempData <- subset(tempData, tempData$`Community Area` == commSubset$X1)
-      tempData <- tempData[c(4,6:8,19,24,26,27)]
+      tempData <- tempData[c("Date","crime","Description","Arrest")]
       return(tempData)
     })
     
@@ -50,7 +50,7 @@ shinyServer
     
     crimebytimeXTS <- reactive({
       dfin <- datetypesubset()
-      df.xts <- xts(x = dfin[, c("crime","abc")], order.by = as.POSIXct(dfin$abc))
+      df.xts <- xts(x = dfin[, c("crime","PosixctDate")], order.by =dfin$PosixctDate)
       
       if (input$period == "Daily") {crimebytime <- apply.daily(df.xts, function(d) {sum(str_count(d, input$crimetype ))})}
       if (input$period == "Weekly") {crimebytime <- apply.weekly(df.xts, function(d) {sum(str_count(d, input$crimetype ))})}
@@ -100,7 +100,7 @@ shinyServer
     
     
     output$plots <- renderPlot({
-      p <- qplot(crimeData$crime,xlab = "Crime",fill = I("pink"),col = I("red"), main = "Crimes in Chicago")+scale_y_continuous("Number of Crimes")
+      p <- qplot(crimeData$crime,xlab = "Number of Crimes",fill = I("pink"),col = I("red"), main = "Crimes in Chicago")+scale_y_continuous("Crime")
       p <- qplot(crimeData$crime,xlab = "Crime",main = "Crimes in Chicago")+scale_y_continuous("Number of Crimes")
       q <- qplot(crimeData$timeTag, xlab="Time of day", main="Crimes by time of day") + scale_y_continuous("Number of crimes")
       r <- qplot(crimeData$day,xlab = "Day of Week",main="Crimes by day of Week")+scale_y_continuous("Number of crimes")
@@ -138,14 +138,28 @@ shinyServer
     
     
     output$heatMaps <- renderPlot({
-      temp <- aggregate(crimeData$crime, by=list(crimeData$crime,
+      tempp <- aggregate(crimeData$crime, by=list(crimeData$crime,
                                                    crimeData$timeTag), FUN= length)
-      names(temp) <- c("crime", "timeTag", "count")
+      tempq <- aggregate(crimeData$crime, by=list(crimeData$crime,
+                                                  crimeData$day), FUN= length)
+      tempr <- aggregate(crimeData$crime, by=list(crimeData$crime,
+                                                  crimeData$month), FUN= length)
+      names(tempp) <- c("crime", "timeTag", "count")
+      names(tempq) <- c("crime", "day", "count")
+      names(tempr) <- c("crime", "month", "count")
+      
+      p <- ggplot(tempp,aes(x=factor(timeTag),y=crime))+geom_tile(aes(fill=count))+scale_x_discrete("Crime",expand=c(0,0))+scale_y_discrete("Time of the day",expand = c(0,-2))+scale_fill_gradient("Number of crimes",low="white",high="red")+theme_bw()+ggtitle("Crimes by time of day")+theme(panel.grid.major = element_line(color=NA),panel.grid.minor = element_line(color=NA))
+      
+      q <- ggplot(tempq,aes(x=factor(day),y=crime))+geom_tile(aes(fill=count))+scale_x_discrete("Crime",expand=c(0,0))+scale_y_discrete("Day of Week",expand = c(0,-2))+scale_fill_gradient("Number of crimes",low="white",high="red")+theme_bw()+ggtitle("Crimes by day of week")+theme(panel.grid.major = element_line(color=NA),panel.grid.minor = element_line(color=NA))
+      
+      r <- ggplot(tempr,aes(x=factor(month),y=crime))+geom_tile(aes(fill=count))+scale_x_discrete("Crime",expand=c(0,0))+scale_y_discrete("Month",expand = c(0,-2))+scale_fill_gradient("Number of crimes",low="white",high="red")+theme_bw()+ggtitle("Crimes by month")+theme(panel.grid.major = element_line(color=NA),panel.grid.minor = element_line(color=NA))
       
       
+      if(input$heatplotselect=="By time"){ print(p)}
+      if(input$heatplotselect=="By Day of Week"){ print(q)}
+      if(input$heatplotselect=="By Month"){ print(r)}
       
-      p <- ggplot(temp,aes(x=factor(timeTag),y=crime))+geom_tile(aes(fill=count))+scale_x_discrete("Crime",expand=c(0,0))+scale_y_discrete("Time of the day",expand = c(0,-2))+scale_fill_gradient("Number of crimes",low="white",high="steelblue")+theme_bw()+ggtitle("Crimes by time of day")+theme(panel.grid.major = element_line(color=NA),panel.grid.minor = element_line(color=NA))
-      print(p)
+     
     })
     
   }

@@ -62,8 +62,8 @@ crime.data$month <- factor(crime.data$month, levels=c("Jan", "Feb", "Mar", "Apr"
 qplot(crime.data$month, xlab= "Month", main="Crimes by month")+ scale_y_continuous("Number of crimes")
 
 
-chota <- seq(2,nrow(crime.data),10)
-chota <- crime.data[chota,]
+
+
 
 
 
