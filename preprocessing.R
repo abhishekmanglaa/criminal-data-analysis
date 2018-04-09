@@ -65,3 +65,5 @@ crimeData$abc <- as.POSIXct(crimeData$Date,format = "%m/%d/%Y %I:%M:%S %p")
 
 
 chota <- crime.data[seq(2,nrow(crimeData),10),]
+
+write.csv(crimeData,"Dataset.csv")
