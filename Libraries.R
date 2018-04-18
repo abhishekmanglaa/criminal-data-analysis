@@ -28,3 +28,10 @@ library(foreach)
 library(devtools)
 library(shinythemes)
 library(doBy)
+library(ggmap)
+library(leaflet)
+library(mapsapi)
+library(stringr)
+library(bitops)
+
+

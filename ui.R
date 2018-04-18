@@ -33,6 +33,7 @@ shinyUI
         (
           selectInput('community','Community Area', choices = commNames, selected = "Chicago-All",selectize=TRUE),
           helpText("Applies to Crime Map, Analysis, and Weather sections")
+         
         ),
         
         wellPanel
@@ -41,13 +42,23 @@ shinyUI
           helpText("Applies to Analysis and Weather sections")
         ),
         
-        radioButtons("color","Select the color", choices = c("Blue","Orange","Green","Red","Purple")),
-        
+
         wellPanel
         (
           selectInput("typeofplot", "Choose type of plot", choice = c("Number of crimes vs CrimeType","Crime by time of Day","Crime By month","Crime by day")),
           helpText("Applies to the Plots Tab")
+         
+        ),
+        
+        wellPanel(
+          textInput('source',"Enter Source"),
+          textInput('destination',"Enter Destination")
+          
+          
         )
+        
+        
+        
       ),
       
       mainPanel
@@ -63,7 +74,9 @@ shinyUI
           tabPanel("HeatMaps", plotOutput("heatMaps"),radioButtons("heatplotselect",
                                                                    label="Select the heat plot",
                                                                    choices=list("By time","By Day of Week","By Month"),
-                                                                   selected="By time"))
+                                                                   selected="By time")),
+          tabPanel("ShortRoute",leafletOutput("shortroute"))
+      
           
     
         )

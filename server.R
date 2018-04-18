@@ -1,5 +1,17 @@
 library(shiny)
 
+
+map <- function() {
+  m <- leaflet() %>%
+    addTiles(group = "OSM") %>%
+    addProviderTiles("Stamen.TonerLite") %>%
+    addLayersControl(
+      baseGroups = c("OSM", "Stamen.TonerLite")
+    )
+  return(m)
+}
+
+
 xtsMelt <- function(data) {
   require(reshape2)
   #translate xts to time series to json with date and data
@@ -161,6 +173,24 @@ shinyServer
       
      
     })
+    
+    output$shortroute <- renderLeaflet({
+      
+      if( !is.null(input$source) && !is.null(input$destination )){
+        s = geocode(input$source+" ,Chicago")
+        d = geocode(input$destination + " ,Chicago")
+        
+      }
+      
+      m<-map()
+      
+      print(m)
+      
+      
+      
+    })
+    
+    
     
   }
 )
