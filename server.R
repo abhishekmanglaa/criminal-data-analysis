@@ -198,29 +198,22 @@ shinyServer
     }, options = list(aLengthMenu = c(10, 25, 50, 100, 1000), iDisplayLength = 10))
     
     
-    output$map <- renderPlot({
+    output$map <- renderLeaflet({
       crimebydatetype <- datetypesubset()
       
       
-      map.center = head(crimebydatetype,n=2)
-      map.center = map.center[c("Longitude","Latitude")]
-      names(map.center[1])= 'lon'
-      names(map.center[2])= 'lat'
-      map.center = map.center[-1,]
       
-     
-      map.base = get_googlemap(
-        as.matrix(map.center),
-        maptype = "terrain",
-        zoom = 15,
-        messaging = FALSE
-      )
+      m<-map()
+      m <- m %>% addCircleMarkers(lat = crimebydatetype$Latitude,
+                                  lng = crimebydatetype$Longitude,
+                                  color = "blue",
+                                  stroke = FALSE,
+                                  radius = 5,
+                                  fillOpacity = 1)
       
-      map.base <- ggmap(map.base, extend = "panel", messaging = FALSE) + coord_cartesian() + coord_fixed(ratio = 1.5)
       
-      p <- map.base + geom_point(aes(x=Longitude, y=Latitude), colour="red", size = 4, na.rm=TRUE, data=crimebydatetype)
+     print(m)
       
-      plot(p)
       
       
       
@@ -304,8 +297,8 @@ shinyServer
           row.names = c(NA, 2L), class = "data.frame")
         nn <- nrow(df)
       
-        m<-map()
         
+        m<-map()
         m <- m %>% addCircleMarkers(lat = df$lat,
                                     lng = df$lng,
                                     color = "red",
@@ -325,23 +318,9 @@ shinyServer
           }
         }
         
-        
-        
-        
-        
-       
         print(m)
         
         print(map_route(df, my_list))
-      
-      
-      
-      
-     
-      
-     
-      
-      
       
     })
     

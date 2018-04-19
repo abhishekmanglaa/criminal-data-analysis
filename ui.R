@@ -67,7 +67,7 @@ shinyUI
           type = "tab",
           tabPanel("Introduction",includeMarkdown("docs/introduction.md")),
           tabPanel("Data",dataTableOutput("datatable")),
-          tabPanel("Map",plotOutput("map",height = 600,width = 600)),
+          tabPanel("Map",leafletOutput("map")),
           #tabPanel("Temp",tableOutput('temp')),
           tabPanel("Basic Stats",showOutput("analysis","highcharts")),
           tabPanel("Plots", plotOutput("plots")),
