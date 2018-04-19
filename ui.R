@@ -51,8 +51,8 @@ shinyUI
         ),
         
         wellPanel(
-          textInput('source',"Enter Source"),
-          textInput('destination',"Enter Destination")
+          selectInput('source','Enter Source', choices = commNames, selected = "Uptown",selectize=TRUE),
+          selectInput('destination','Enter Destination', choices = commNames, selected = "Rogers Park",selectize=TRUE)
           
           
         )

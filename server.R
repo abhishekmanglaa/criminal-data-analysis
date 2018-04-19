@@ -12,6 +12,103 @@ map <- function() {
 }
 
 
+
+
+
+
+
+viaroute <- function(lat1, lng1, lat2, lng2) {
+  R.utils::evalWithTimeout({
+    repeat {
+      res <- try(
+        route <- rjson::fromJSON(
+          file = paste("http://router.project-osrm.org/route/v1/driving/",
+                       lng1, ",", lat1, ";", lng2, ",", lat2,
+                       "?overview=full", sep = "", NULL)))
+      if (class(res) != "try-error") {
+        if (!is.null(res)) {
+          break
+        }
+      }
+    }
+  }, timeout = 1, onTimeout = "warning")
+  return(res)
+}
+
+
+
+decode_geom <- function(encoded) {
+  scale <- 1e-5
+  len = str_length(encoded)
+  encoded <- strsplit(encoded, NULL)[[1]]
+  index = 1
+  N <- 100000
+  df.index <- 1
+  array = matrix(nrow = N, ncol = 2)
+  lat <- dlat <- lng <- dlnt <- b <- shift <- result <- 0
+  
+  while (index <= len) {
+    # if (index == 80) browser()
+    shift <- result <- 0
+    repeat {
+      b = as.integer(charToRaw(encoded[index])) - 63
+      index <- index + 1
+      result = bitOr(result, bitShiftL(bitAnd(b, 0x1f), shift))
+      shift = shift + 5
+      if (b < 0x20) break
+    }
+    dlat = ifelse(bitAnd(result, 1),
+                  -(result - (bitShiftR(result, 1))),
+                  bitShiftR(result, 1))
+    lat = lat + dlat;
+    
+    shift <- result <- b <- 0
+    repeat {
+      b = as.integer(charToRaw(encoded[index])) - 63
+      index <- index + 1
+      result = bitOr(result, bitShiftL(bitAnd(b, 0x1f), shift))
+      shift = shift + 5
+      if (b < 0x20) break
+    }
+    dlng = ifelse(bitAnd(result, 1),
+                  -(result - (bitShiftR(result, 1))),
+                  bitShiftR(result, 1))
+    lng = lng + dlng
+    
+    array[df.index,] <- c(lat = lat * scale, lng = lng * scale)
+    df.index <- df.index + 1
+  }
+  
+  geometry <- data.frame(array[1:df.index - 1,])
+  names(geometry) <- c("lat", "lng")
+  return(geometry)
+}
+
+
+map_route <- function(df, my_list) {
+  m <- map()
+  m <- addCircleMarkers(map = m,
+                        lat = df$lat,
+                        lng = df$lng,
+                        color = "blue",
+                        stroke = FALSE,
+                        radius = 6,
+                        fillOpacity = 0.8) %>%
+    addLayersControl(baseGroups = c("OSM", "Stamen.TonerLite")) %>%
+    {
+      for (i in 1:length(my_list)) {
+        . <- addPolylines(., lat = my_list[[i]]$lat, lng = my_list[[i]]$lng, color = "red", weight = 4)
+      }
+      return(.)
+    }
+  return(m)
+}
+
+
+
+
+
+
 xtsMelt <- function(data) {
   require(reshape2)
   #translate xts to time series to json with date and data
@@ -57,6 +154,25 @@ shinyServer
                          select = c(PosixctDate,crime,Latitude,Longitude,abc))
       return(tempData)
     })
+    
+    
+    
+    datetypesubsetformaps <- reactive({
+      
+      
+      commSubset <- subset(commArea,commArea$X2 == input$source)
+      tempData <- subset(crimeData, crimeData$`Community Area` == commSubset$X1,
+                         select = c(Latitude,Longitude))
+      source <- tempData[1,]
+      commSubset1 <- subset(commArea,commArea$X2 == input$destination)
+      tempData1 <- subset(crimeData, crimeData$`Community Area` == commSubset1$X1,
+                         select = c(Latitude,Longitude))
+      destination <- tempData1[1,]
+      df <- data.frame(c(source$Latitude,destination$Latitude),c(source$Longitude,destination$Longitude))
+      
+      return(df)
+    })
+    
     
     
     
@@ -176,15 +292,54 @@ shinyServer
     
     output$shortroute <- renderLeaflet({
       
-      if( !is.null(input$source) && !is.null(input$destination )){
-        s = geocode(input$source+" ,Chicago")
-        d = geocode(input$destination + " ,Chicago")
+        df <- datetypesubsetformaps()
         
-      }
+        
+        colnames(df) = c("lat","lon") 
+        
+        df <- structure(list(
+          lat = df$lat, 
+          lng = df$lon),
+          .Names = c("lat", "lng"), 
+          row.names = c(NA, 2L), class = "data.frame")
+        nn <- nrow(df)
       
-      m<-map()
+        m<-map()
+        
+        m <- m %>% addCircleMarkers(lat = df$lat,
+                                    lng = df$lng,
+                                    color = "red",
+                                    stroke = FALSE,
+                                    radius = 10,
+                                    fillOpacity = 0.8)
+        
+        
+        my_list <- list()
+        r <- 1
+        for (i in 1:(nn-1)) {
+          for (j in ((i+1):nn)) {
+            my_route <- viaroute(df$lat[i], df$lng[i],df$lat[j], df$lng[j])
+            geom <- decode_geom(my_route$routes[[1]]$geometry)
+            my_list[[r]] <- geom
+            r <- r + 1
+          }
+        }
+        
+        
+        
+        
+        
+       
+        print(m)
+        
+        print(map_route(df, my_list))
       
-      print(m)
+      
+      
+      
+     
+      
+     
       
       
       
