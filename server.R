@@ -1,5 +1,3 @@
-library(shiny)
-
 
 map <- function() {
   m <- leaflet() %>%
@@ -11,11 +9,7 @@ map <- function() {
   return(m)
 }
 
-
-
-
-
-
+############################################################################################
 
 viaroute <- function(lat1, lng1, lat2, lng2) {
   R.utils::evalWithTimeout({
@@ -35,7 +29,7 @@ viaroute <- function(lat1, lng1, lat2, lng2) {
   return(res)
 }
 
-
+############################################################################################
 
 decode_geom <- function(encoded) {
   scale <- 1e-5
@@ -84,6 +78,8 @@ decode_geom <- function(encoded) {
   return(geometry)
 }
 
+############################################################################################
+
 
 map_route <- function(df, my_list) {
   m <- map()
@@ -105,6 +101,7 @@ map_route <- function(df, my_list) {
 }
 
 
+############################################################################################
 
 
 
@@ -126,13 +123,16 @@ xtsMelt <- function(data) {
   #return(df2json(na.omit(data.melt)))
 }
 
-
+############################################################################################
 
 shinyServer
 (
   
   function(input, output) 
   {
+    
+############################################################################################   
+    
     datetypesubsetforsimpledata <- reactive({
       
       tempData <- subset(crimeData, 
@@ -143,6 +143,8 @@ shinyServer
       tempData <- tempData[c("Date","crime","Description","Arrest")]
       return(tempData)
     })
+    
+############################################################################################    
     
     datetypesubset <- reactive({
       
@@ -155,7 +157,7 @@ shinyServer
       return(tempData)
     })
     
-    
+############################################################################################    
     
     datetypesubsetformaps <- reactive({
       
@@ -173,7 +175,7 @@ shinyServer
       return(df)
     })
     
-    
+############################################################################################   
     
     
     crimebytimeXTS <- reactive({
@@ -189,7 +191,7 @@ shinyServer
       return(crimebytime)
     })
     
-    
+############################################################################################    
     
     output$datatable <- renderDataTable({
       
@@ -197,6 +199,8 @@ shinyServer
       
     }, options = list(aLengthMenu = c(10, 25, 50, 100, 1000), iDisplayLength = 10))
     
+    
+############################################################################################
     
     output$map <- renderLeaflet({
       crimebydatetype <- datetypesubset()
@@ -219,6 +223,8 @@ shinyServer
       
     })
     
+############################################################################################
+    
     
     output$plots <- renderPlot({
       p <- qplot(crimeData$crime,xlab = "Number of Crimes",fill = I("pink"),col = I("red"), main = "Crimes in Chicago")+scale_y_continuous("Crime")
@@ -233,6 +239,11 @@ shinyServer
       if(type == "Crime by day") { print(r)}
       
     })
+    
+    
+    
+############################################################################################
+    
 
     output$analysis <- renderChart2({
       
@@ -256,6 +267,10 @@ shinyServer
       
       h1
     })
+    
+    
+############################################################################################
+    
     
     
     output$heatMaps <- renderPlot({
@@ -282,6 +297,11 @@ shinyServer
       
      
     })
+    
+  
+############################################################################################
+    
+    
     
     output$shortroute <- renderLeaflet({
       
@@ -323,6 +343,21 @@ shinyServer
         print(map_route(df, my_list))
       
     })
+    
+    
+############################################################################################
+    
+    output$facilitymap1 <- renderHighchart({
+      hchart(merge_data(), "point", x = pvalue, y = cvalue, group = colour) %>% 
+        hc_xAxis(title=list(text = 'Number of Public Facilities')) %>% 
+        hc_yAxis(title=list(text='Number of Crimes')) %>% 
+        hc_title(text = "Crime Against Public Facility distribution by Zipcode") %>% 
+        #hc_subtitle(text = "Using 2015 crime data") %>% 
+        hc_tooltip(useHTML = TRUE, headerFormat = "", 
+                   pointFormat = tooltip_table(c("Zipcode", "Public Facility Count","Crime Count"),
+                                               sprintf("{point.%s}",c("region", "pvalue",'cvalue'))))
+    })
+    
     
     
     
