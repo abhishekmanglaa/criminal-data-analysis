@@ -1,4 +1,10 @@
 
+registerPlugin <- function(map, plugin) {
+  map$dependencies <- c(map$dependencies, list(plugin))
+  map
+}
+############################################################################################
+
 map <- function() {
   m <- leaflet() %>%
     addTiles(group = "OSM") %>%
@@ -97,8 +103,22 @@ map_route <- function(df, my_list) {
       }
       return(.)
     }
+  
+  m <- m %>% addTiles() %>%
+    fitBounds(min(chota$Longitude), min(chota$Latitude), max(chota$Longitude),     max(chota$Latitude)) %>%
+    registerPlugin(heatPlugin) %>%
+    onRender("function(el, x, data) {
+             data = HTMLWidgets.dataframeToD3(data);
+             data = data.map(function(val) { return [val.Latitude, val.Longitude, .05]; });
+             L.heatLayer(data, {radius: 25}).addTo(this);
+}", data = chota %>% select(Latitude, Longitude))
+  
+  
+  
+  m <- m%>% setView(-87.78206,41.93177,zoom =10)
+  
   return(m)
-}
+  }
 
 
 ############################################################################################
@@ -108,16 +128,12 @@ map_route <- function(df, my_list) {
 
 xtsMelt <- function(data) {
   require(reshape2)
-  #translate xts to time series to json with date and data
-  #for this behavior will be more generic than the original
-  #data will not be transformed, so template.rmd will be changed to reflect
-  #convert to data frame
+  
   data.df <- data.frame(cbind(format(index(data),"%Y-%m-%d"),coredata(data)))
   colnames(data.df)[1] = "date"
   data.melt <- melt(data.df,id.vars=1,stringsAsFactors=FALSE)
   colnames(data.melt) <- c("date","indexname","value")
-  #remove periods from indexnames to prevent javascript confusion
-  #these . usually come from spaces in the colnames when melted
+  
   data.melt[,"indexname"] <- apply(matrix(data.melt[,"indexname"]),2,gsub,pattern="[.]",replacement="")
   return(data.melt)
   #return(df2json(na.omit(data.melt)))
@@ -131,7 +147,7 @@ shinyServer
   function(input, output) 
   {
     
-############################################################################################   
+    ############################################################################################   
     
     datetypesubsetforsimpledata <- reactive({
       
@@ -144,7 +160,7 @@ shinyServer
       return(tempData)
     })
     
-############################################################################################    
+    ############################################################################################    
     
     datetypesubset <- reactive({
       
@@ -157,7 +173,31 @@ shinyServer
       return(tempData)
     })
     
-############################################################################################    
+    
+    
+    ############################################################################################    
+    
+    datetypesubset2 <- reactive({
+      
+      tempData <- subset(chota, chota$crime == input$crimetype2,select = c(ZIP))
+      tempData <- as.data.frame(table(tempData$ZIP))
+      return(tempData)
+    })
+    
+    ############################################################################################    
+    
+    datetypesubset1 <- reactive({
+      
+      tempData <- subset(crimeData, 
+                         crimeData$PosixctDate > as.POSIXct(strptime(input$startdate1, format="%Y-%m-%d")) & crimeData$PosixctDate < as.POSIXct(strptime(input$enddate1, format="%Y-%m-%d")) & crimeData$crime == input$crimetype1)
+      
+      commSubset <- subset(commArea,commArea$X2 == input$community1)
+      tempData <- subset(tempData, tempData$`Community Area` == commSubset$X1,
+                         select = c(PosixctDate,crime,Latitude,Longitude,abc))
+      return(tempData)
+    })
+    
+    ############################################################################################    
     
     datetypesubsetformaps <- reactive({
       
@@ -168,30 +208,45 @@ shinyServer
       source <- tempData[1,]
       commSubset1 <- subset(commArea,commArea$X2 == input$destination)
       tempData1 <- subset(crimeData, crimeData$`Community Area` == commSubset1$X1,
-                         select = c(Latitude,Longitude))
+                          select = c(Latitude,Longitude))
       destination <- tempData1[1,]
       df <- data.frame(c(source$Latitude,destination$Latitude),c(source$Longitude,destination$Longitude))
       
       return(df)
     })
     
-############################################################################################   
+    ############################################################################################   
     
     
     crimebytimeXTS <- reactive({
-      dfin <- datetypesubset()
+      dfin <- datetypesubset1()
       df.xts <- xts(x = dfin[, c("crime","PosixctDate")], order.by =dfin$PosixctDate)
       
-      if (input$period == "Daily") {crimebytime <- apply.daily(df.xts, function(d) {sum(str_count(d, input$crimetype ))})}
-      if (input$period == "Weekly") {crimebytime <- apply.weekly(df.xts, function(d) {sum(str_count(d, input$crimetype ))})}
-      if (input$period == "Monthly") {crimebytime <- apply.monthly(df.xts, function(d) {sum(str_count(d, input$crimetype ))})}
-      if (input$period == "Yearly") {crimebytime <- apply.yearly(df.xts, function(d) {sum(str_count(d, input$crimetype ))})}
+      if (input$period == "Daily") {crimebytime <- apply.daily(df.xts, function(d) {sum(str_count(d, input$crimetype1 ))})}
+      if (input$period == "Weekly") {crimebytime <- apply.weekly(df.xts, function(d) {sum(str_count(d, input$crimetype1 ))})}
+      if (input$period == "Monthly") {crimebytime <- apply.monthly(df.xts, function(d) {sum(str_count(d, input$crimetype1 ))})}
+      if (input$period == "Yearly") {crimebytime <- apply.yearly(df.xts, function(d) {sum(str_count(d, input$crimetype1 ))})}
       
       df.xts <- NULL
       return(crimebytime)
     })
     
-############################################################################################    
+    ############################################################################################ 
+    mergeFinal <- reactive({
+      
+      
+      #if(input$facility=="PUBLIC FACILITIES"){return(merge(mainDatazips,,by ="Var1"))}
+      if(input$facility =="HOUSE"){mergeFinal<-mergeR}
+      if(input$facility  =="FOOD"){mergeFinal<- mergeF}
+      if(input$facility  =="BAR"){mergeFinal<-mergeB}
+      
+      mergeFinal <- as.data.frame(mergeFinal)
+      return(mergeFinal)
+      
+    })
+    
+    
+    ############################################################################################ 
     
     output$datatable <- renderDataTable({
       
@@ -200,30 +255,28 @@ shinyServer
     }, options = list(aLengthMenu = c(10, 25, 50, 100, 1000), iDisplayLength = 10))
     
     
-############################################################################################
+    ############################################################################################
     
     output$map <- renderLeaflet({
       crimebydatetype <- datetypesubset()
       
-      
-      
       m<-map()
       m <- m %>% addCircleMarkers(lat = crimebydatetype$Latitude,
                                   lng = crimebydatetype$Longitude,
-                                  color = "blue",
+                                  color = "red",
                                   stroke = FALSE,
-                                  radius = 5,
-                                  fillOpacity = 1)
+                                  radius = 4,
+                                  fillOpacity = .9)
       
       
-     print(m)
+      
       
       
       
       
     })
     
-############################################################################################
+    ############################################################################################
     
     
     output$plots <- renderPlot({
@@ -242,9 +295,9 @@ shinyServer
     
     
     
-############################################################################################
+    ############################################################################################
     
-
+    
     output$analysis <- renderChart2({
       
       crimebytime <-crimebytimeXTS()
@@ -257,25 +310,26 @@ shinyServer
       
       #Highchart plot
       h1 <- hPlot(
-        Crime ~ date4,  #or x="date", y="value"
+        Crime ~ date4,  
         data = ust.melt, 
         color = '#4572A7',
         type = 'spline',
-        title = paste("Crimes for ",input$crimetype)
+        title = paste("Crimes for ",input$crimetype1)
       ) 
       h1$xAxis(type = "datetime")
+      h1$params$width <- 700
       
-      h1
+      h1 
     })
     
     
-############################################################################################
+    ############################################################################################
     
     
     
-    output$heatMaps <- renderPlot({
+    output$heatmaps <- renderPlot({
       tempp <- aggregate(crimeData$crime, by=list(crimeData$crime,
-                                                   crimeData$timeTag), FUN= length)
+                                                  crimeData$timeTag), FUN= length)
       tempq <- aggregate(crimeData$crime, by=list(crimeData$crime,
                                                   crimeData$day), FUN= length)
       tempr <- aggregate(crimeData$crime, by=list(crimeData$crime,
@@ -291,75 +345,92 @@ shinyServer
       r <- ggplot(tempr,aes(x=factor(month),y=crime))+geom_tile(aes(fill=count))+scale_x_discrete("Crime",expand=c(0,0))+scale_y_discrete("Month",expand = c(0,-2))+scale_fill_gradient("Number of crimes",low="white",high="red")+theme_bw()+ggtitle("Crimes by month")+theme(panel.grid.major = element_line(color=NA),panel.grid.minor = element_line(color=NA))
       
       
-      if(input$heatplotselect=="By time"){ print(p)}
-      if(input$heatplotselect=="By Day of Week"){ print(q)}
+      if(input$heatplotselect=="By time"){print(p) }
+      if(input$heatplotselect=="By Day of Week"){print(q) }
       if(input$heatplotselect=="By Month"){ print(r)}
       
-     
+      
     })
     
-  
-############################################################################################
+    
+    ############################################################################################
     
     
     
-    output$shortroute <- renderLeaflet({
+    output$saferoute <- renderLeaflet({
       
-        df <- datetypesubsetformaps()
-        
-        
-        colnames(df) = c("lat","lon") 
-        
-        df <- structure(list(
-          lat = df$lat, 
-          lng = df$lon),
-          .Names = c("lat", "lng"), 
-          row.names = c(NA, 2L), class = "data.frame")
-        nn <- nrow(df)
+      df <- datetypesubsetformaps()
       
+      
+      colnames(df) = c("lat","lon") 
+      
+      df <- structure(list(
+        lat = df$lat, 
+        lng = df$lon),
+        .Names = c("lat", "lng"), 
+        row.names = c(NA, 2L), class = "data.frame")
+      nn <- nrow(df)
+      
+      
+      m<-map()
+      m <- m %>% addCircleMarkers(lat = df$lat,
+                                  lng = df$lng,
+                                  color = "red",
+                                  stroke = FALSE,
+                                  radius = 10,
+                                  fillOpacity = 0.8)
+      
+      
+      m <- m %>% addTiles() %>%
+        fitBounds(min(chota$Longitude), min(chota$Latitude), max(chota$Longitude),     max(chota$Latitude)) %>%
+        registerPlugin(heatPlugin) %>%
+        onRender("function(el, x, data) {
+                 data = HTMLWidgets.dataframeToD3(data);
+                 data = data.map(function(val) { return [val.Latitude, val.Longitude, .05]; });
+                 L.heatLayer(data, {radius: 25}).addTo(this);
+    }", data = chota %>% select(Latitude, Longitude))
         
-        m<-map()
-        m <- m %>% addCircleMarkers(lat = df$lat,
-                                    lng = df$lng,
-                                    color = "red",
-                                    stroke = FALSE,
-                                    radius = 10,
-                                    fillOpacity = 0.8)
-        
-        
-        my_list <- list()
-        r <- 1
-        for (i in 1:(nn-1)) {
-          for (j in ((i+1):nn)) {
-            my_route <- viaroute(df$lat[i], df$lng[i],df$lat[j], df$lng[j])
-            geom <- decode_geom(my_route$routes[[1]]$geometry)
-            my_list[[r]] <- geom
-            r <- r + 1
-          }
+      
+      
+      
+      my_list <- list()
+      r <- 1
+      for (i in 1:(nn-1)) {
+        for (j in ((i+1):nn)) {
+          my_route <- viaroute(df$lat[i], df$lng[i],df$lat[j], df$lng[j])
+          geom <- decode_geom(my_route$routes[[1]]$geometry)
+          my_list[[r]] <- geom
+          r <- r + 1
         }
-        
-        print(m)
-        
-        print(map_route(df, my_list))
+      }
       
-    })
+      
+      
+      
+      
+      
+      print(map_route(df, my_list))
+      
+  })
     
     
-############################################################################################
+    ############################################################################################
     
-    output$facilitymap1 <- renderHighchart({
-      hchart(merge_data(), "point", x = pvalue, y = cvalue, group = colour) %>% 
+    output$publicf<-renderHighchart({
+      
+      
+      
+      hc<-hchart(mergeMore,"scatter",hcaes(x = mergeMore$CRIME, y =mergeMore$BAR,label=mergeMore$ZIP,group = ZIP))%>% 
         hc_xAxis(title=list(text = 'Number of Public Facilities')) %>% 
         hc_yAxis(title=list(text='Number of Crimes')) %>% 
-        hc_title(text = "Crime Against Public Facility distribution by Zipcode") %>% 
-        #hc_subtitle(text = "Using 2015 crime data") %>% 
-        hc_tooltip(useHTML = TRUE, headerFormat = "", 
-                   pointFormat = tooltip_table(c("Zipcode", "Public Facility Count","Crime Count"),
-                                               sprintf("{point.%s}",c("region", "pvalue",'cvalue'))))
+        hc_title(text = "Crime Against Public Facility distribution by Zipcode")%>% hc_add_theme(hc_theme_flat())
+      
+      
+      
     })
     
     
     
     
-  }
-)
+    }
+    )
