@@ -33,5 +33,9 @@ library(leaflet)
 library(mapsapi)
 library(stringr)
 library(bitops)
-
+library(leaflet)
+library(htmltools)
+library(htmlwidgets)
+library(dplyr)
+library(shinydashboard)
 
