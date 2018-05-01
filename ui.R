@@ -1,6 +1,3 @@
-library(shinydashboard)
-library(shiny)
-
 dashboardPage(
   skin = "red",
   

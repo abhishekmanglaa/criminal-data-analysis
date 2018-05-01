@@ -38,4 +38,5 @@ library(htmltools)
 library(htmlwidgets)
 library(dplyr)
 library(shinydashboard)
+library(shiny)
 
