@@ -7,4 +7,9 @@ The main objective of this project is to design an R application which can help 
 Finally, our group was able to design an Crime Analysis web application. User could choose various plots for analysing various crimes according to the Area, Date and time of the day. The user could also find the safest route in which the path had the least chance of occurrence of crime.
 
 
-![screenshot](https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/1.png)
+![screenshot](https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img1.png)
+![screenshot](https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img2.png)
+![screenshot](https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img3.png)
+![screenshot](https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img4.png)
+![screenshot](https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img5.png)
+![screenshot](https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img6.png)
