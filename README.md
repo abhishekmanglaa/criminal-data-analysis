@@ -11,9 +11,9 @@ Steps to run the App:-
 (i) Include all the libraries from Libraries.R  (ii) Include the dataset and run the file preprocessing.R   (iii) Run the temp.R file   (iv) Run ui.R
 
 
-<img src="https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img1.png" width="100">
-<img src="https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img2.png" width="100">
-<img src="https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img3.png" width="100">
-<img src="https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img4.png" width="100">
-<img src="https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img5.png" width="100">
-<img src="https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img6.png" width="100">
+![screenshot]("https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img1.png")
+![screenshot]("https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img2.png")
+![screenshot]("https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img3.png")
+![screenshot]("https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img4.png")
+![screenshot]("https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img5.png")
+![screenshot]("https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img6.png")
