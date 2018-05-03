@@ -12,8 +12,8 @@ Steps to run the App:-
 
 
 ![screenshot](https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img1.png)
-![image]("https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img2.png")
-![image]("https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img3.png")
-![image]("https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img4.png")
-![image]("https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img5.png")
-![image]("https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img6.png")
+![screenshot](https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img2.png)
+![screenshot](https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img3.png)
+![screenshot]("https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img4.png")
+![screenshot]("https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img5.png")
+![screenshot]("https://github.com/abhishekmangla59/CriminalDataAnalysis/blob/master/docs/img6.png")
